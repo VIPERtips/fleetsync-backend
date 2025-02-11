@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: fleetsync
+  datasource:
+    url: jdbc:mysql://${DATABASE_HOST:localhost}:${DATABASE_PORT:3306}/${DATABASE_NAME:fleetsync_db}?allowPublicKeyRetrieval=true&useSSL=false
+    username: ${DATABASE_USER:root}
+    password: ${DATABASE_PASSWORD:youngtips}
+    driver-class-name: com.mysql.cj.jdbc.Driver  # <-- Fixed indentation
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  resources:
+    static: classpath:/static/
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: mytipstadiwa@gmail.com
+    password: ejaq xhqf btoa omhv
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+        security.authentication: DEBUG
+        security.web.authentication: DEBUG

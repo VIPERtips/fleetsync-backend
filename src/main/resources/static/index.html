@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehicle Tracking</title>
+    
+    <!-- Include STOMP.js and SockJS libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js" integrity="sha512-iKDtgDyTHjAitUDdLljGhenhPwrbBfqTKWO1mkhSFH3A7blITC9MhYon6SjnMhp4o0rADGw9yAC6EW4t5a4K3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js" integrity="sha512-1QvjE7BtotQjkq8PxLeF6P46gEpBRXuskzIVgjFpekzFVF4yjRgrQvTG1MTOJ3yQgvTteKAcO7DSZI92+u/yZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <!-- Include Leaflet for map display (Optional) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Vehicle Tracking</h1>
+    <div id="trackingData">
+        <!-- Tracking data will be displayed here -->
+    </div>
+
+    <!-- Map container (optional for visualizing location) -->
+    <div id="map" style="height: 400px;"></div>
+
+    <script>
+        // Establish WebSocket connection using SockJS
+        const socket = new SockJS('http://localhost:8080/ws'); // Replace with your backend URL if different
+        const stompClient = Stomp.over(socket);
+
+        // Create a Leaflet map to visualize location (optional)
+        const map = L.map('map').setView([0, 0], 13); // Initial center, can be updated later
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        const marker = L.marker([0, 0]).addTo(map); // Marker to show vehicle location
+
+        // Connect to WebSocket server
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            
+            // Subscribe to vehicle tracking updates (for vehicle with ID 1)
+            stompClient.subscribe('/topic/vehicle/1', function (messageOutput) {
+                const trackingData = JSON.parse(messageOutput.body);
+
+                // Update tracking data on the page
+                document.getElementById('trackingData').innerHTML = `
+                    <strong>Vehicle ID:</strong> ${trackingData.vehicle.vehicleId}<br>
+                    <strong>Latitude:</strong> ${trackingData.latitude}<br>
+                    <strong>Longitude:</strong> ${trackingData.longitude}<br>
+                    <strong>Speed:</strong> ${trackingData.speed} km/h<br>
+                    <strong>Timestamp:</strong> ${trackingData.timestamp}
+                `;
+
+                // Update the marker on the map
+                marker.setLatLng([trackingData.latitude, trackingData.longitude]);
+                map.setView([trackingData.latitude, trackingData.longitude]);
+            });
+        });
+
+        // Function to get and send location data periodically
+        function getLocationAndSendData() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const speed = position.coords.speed || 0;  // Speed, if available
+
+                    // Send the location data to the backend
+                    const vehicleId = 1;  // Replace with actual vehicle ID
+                    const data = {
+                        vehicleId: vehicleId,
+                        latitude: latitude,
+                        longitude: longitude,
+                        speed: speed,
+                        timestamp: new Date().toISOString(),
+                    };
+
+                    // Send data to backend via POST request
+                    fetch('http://localhost:8080/api/tracking', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    });
+                });
+            } else {
+                console.error("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Send location data every 5 seconds
+        setInterval(getLocationAndSendData, 5000); // 5 seconds interval
+    </script>
+</body>
+</html>
