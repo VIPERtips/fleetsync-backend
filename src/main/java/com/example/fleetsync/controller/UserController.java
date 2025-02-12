@@ -84,14 +84,23 @@ public class UserController {
 
 
     @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<User>> getUserProfile(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<?>> getUserProfile(HttpServletRequest request) {
         try {
             String token = extractTokenFromRequest(request);
             String username = jwtService.extractUsername(token);
             User user = userService.getUserByUsername(username);
 
             if (user != null) {
-                return ResponseEntity.ok(new ApiResponse<>("User profile retrieved successfully", true, user));
+            	UserDto userDto = new UserDto(
+            			user.getUserId(),
+            			user.getUserinfo().getFullname(),
+            			user.getUserinfo().getEmail(),
+            			user.getUserinfo().getProfilePicture(),
+            			user.getUserinfo().getPhonenumber()
+            			);
+            	userDto.setUsername(user.getUsername());
+            	userDto.setPassword(user.getPassword());
+                return ResponseEntity.ok(new ApiResponse<>("User profile retrieved successfully", true, userDto));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new ApiResponse<>("User not found", false, null));

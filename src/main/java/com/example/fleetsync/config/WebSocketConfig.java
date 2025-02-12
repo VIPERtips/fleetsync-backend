@@ -16,7 +16,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
        
-        registry.addEndpoint("/ws").withSockJS(); 
+        registry.addEndpoint("/ws")
+        .setAllowedOrigins("http://localhost:8081",
+                "https://fleet-sync.vercel.app");	
+        //.withSockJS(); 
         System.out.println("WebSocket endpoint registered at /ws");
     }
 
@@ -26,6 +29,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.enableSimpleBroker("/topic", "/queue");  
         config.setApplicationDestinationPrefixes("/app");
     }
+    
+    
 
    
 }

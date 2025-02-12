@@ -35,12 +35,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable()) // Use lambda to remove deprecation warnings
+                .csrf(csrf -> csrf.disable()) 
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration corsConfig = new CorsConfiguration();
                     corsConfig.setAllowedOrigins(Arrays.asList(
-                            "http://localhost:3000",
-                            "https://kliffera-homes.netlify.app"
+                            "http://localhost:8081",
+                            "https://fleet-sync.vercel.app"
                     ));
                     corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
                     corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
@@ -48,9 +48,9 @@ public class SecurityConfig {
                     return corsConfig;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**","/static/**","index.html").permitAll()
+                        .requestMatchers("/api/auth/**","/static/**","/index.html").permitAll()
                         .requestMatchers( "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/ws/**","/topic/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 

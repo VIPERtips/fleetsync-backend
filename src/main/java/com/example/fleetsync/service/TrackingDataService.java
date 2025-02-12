@@ -34,4 +34,13 @@ public class TrackingDataService {
     public List<TrackingData> getTrackingDataByVehicleId(int vehicleId) {
         return trackingDataRepository.findByVehicle_VehicleId(vehicleId);
     }
+    
+    public TrackingData getCurrentTrackingData(String vin) {
+        return trackingDataRepository.findTopByVehicle_VinOrderByTimestampDesc(vin);
+    }
+
+    
+    public List<TrackingData> getTrackingHistory(String vin) {
+        return trackingDataRepository.findByVehicle_VinOrderByTimestampAsc(vin);
+    }
 }

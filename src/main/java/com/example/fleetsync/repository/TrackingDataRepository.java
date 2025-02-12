@@ -10,4 +10,8 @@ public interface TrackingDataRepository extends JpaRepository<TrackingData, Inte
 
 	List<TrackingData> findByVehicle_VehicleId(int vehicleId);
 
+	TrackingData findTopByVehicle_VinOrderByTimestampDesc(String vin);
+
+	List<TrackingData> findByVehicle_VinOrderByTimestampAsc(String vin);
+
 }

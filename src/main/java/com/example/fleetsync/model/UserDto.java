@@ -8,6 +8,7 @@ public class UserDto {
     private String username;
     private String fullname;
     private String phonenumber;
+    private String profilePicture;
 
     public UserDto() {}
 
@@ -16,6 +17,14 @@ public class UserDto {
         this.fullname = fullname;
         this.email = email;
         this.username = username;
+    }
+    
+    public UserDto(int id, String fullname, String email, String profilePicture, String phonenumber) {
+        this.id = id;
+        this.fullname = fullname;
+        this.email = email;
+        this.profilePicture = profilePicture;
+        this.phonenumber = phonenumber;
     }
 
     public String getPhonenumber() {
@@ -73,4 +82,12 @@ public class UserDto {
     public void setFullname(String fullname) {
         this.fullname = fullname;
     }
+
+	public String getProfilePicture() {
+		return profilePicture;
+	}
+
+	public void setProfilePicture(String profilePicture) {
+		this.profilePicture = profilePicture;
+	}
 }

@@ -38,7 +38,7 @@
             console.log('Connected: ' + frame);
             
             // Subscribe to vehicle tracking updates (for vehicle with ID 1)
-            stompClient.subscribe('/topic/vehicle/1', function (messageOutput) {
+            stompClient.subscribe('/topic/vehicle/8', function (messageOutput) {
                 const trackingData = JSON.parse(messageOutput.body);
 
                 // Update tracking data on the page
