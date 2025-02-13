@@ -91,4 +91,8 @@ public class VehicleService {
         }
         return null;
     }
+
+	public boolean existsByVin(String vin) {
+		return vehicleRepository.existsByVin(vin);
+	}
 }

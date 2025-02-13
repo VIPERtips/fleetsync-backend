@@ -40,7 +40,8 @@ public class SecurityConfig {
                     CorsConfiguration corsConfig = new CorsConfiguration();
                     corsConfig.setAllowedOrigins(Arrays.asList(
                             "http://localhost:8081",
-                            "https://fleet-sync.vercel.app"
+                            "http://192.168.49.243:8080",
+                            "https://fleet-sync.vercel.app","http://10.0.2.2:8080"
                     ));
                     corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
                     corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
@@ -50,7 +51,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**","/static/**","/index.html").permitAll()
                         .requestMatchers( "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/ws/**","/topic/**").permitAll()
+                        .requestMatchers("/ws/**","/topic/**","/api/tracking/start/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 
