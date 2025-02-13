@@ -42,7 +42,7 @@ public class TrackingDataService {
 
     
     public List<TrackingData> getTrackingHistory(String vin) {
-        return trackingDataRepository.findByVehicle_VinOrderByTimestampAsc(vin);
+        return trackingDataRepository.findByVehicle_VinOrderByTimestampDesc(vin);
     }
 
 

@@ -23,6 +23,6 @@ TrackingData findMostRecentTrackingByVin(@Param("vin") String vin);
 
 	//TrackingData findTopByVehicle_VinOrderByTimestampDesc(String vin);
 
-	List<TrackingData> findByVehicle_VinOrderByTimestampAsc(String vin);
+	List<TrackingData> findByVehicle_VinOrderByTimestampDesc(String vin);
 
 }
