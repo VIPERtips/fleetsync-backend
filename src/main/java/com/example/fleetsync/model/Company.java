@@ -17,6 +17,8 @@ public class Company {
 	private String address;
 	private String city;
 	private String country;
+	private double latitude; 
+    private double longitude;
 
 	@JsonIgnore
 	@OneToOne
@@ -94,5 +96,31 @@ public class Company {
 	public void setUser(User user) {
 		this.user = user;
 	}
+
+	public double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
+
+	public List<Vehicle> getVehicles() {
+		return vehicles;
+	}
+
+	public void setVehicles(List<Vehicle> vehicles) {
+		this.vehicles = vehicles;
+	}
+	
+	
 
 }

@@ -41,6 +41,10 @@ public class CompanyService {
         }
 
         req.setUser(user);
+        
+        if (req.getLatitude() == 0.0 || req.getLongitude() == 0.0) {
+            throw new RuntimeException("Company location (latitude and longitude) is required.");
+        }
         Company savedCompany = companyRepository.save(req);
 
         user.setCompany(savedCompany);
@@ -65,6 +69,8 @@ public class CompanyService {
         existingCompany.setAddress(req.getAddress());
         existingCompany.setCity(req.getCity());
         existingCompany.setCountry(req.getCountry());
+        existingCompany.setLatitude(req.getLatitude());
+        existingCompany.setLongitude(req.getLongitude());
 
         return companyRepository.save(existingCompany);
     }

@@ -80,6 +80,9 @@ public class CompanyController {
             String token = extractTokenFromRequest(request);
             String username = jwtService.extractUsername(token);
             User user = userService.getUserByUsername(username);
+            if (companyRequest.getLatitude() == 0.0 || companyRequest.getLongitude() == 0.0) {
+                throw new RuntimeException("Latitude and Longitude are required for company registration.");
+            }
 
             Company createdCompany = companyService.registerCompany(companyRequest, user.getUserId());
             return ResponseEntity.ok(new ApiResponse<>("Company registered successfully", true, createdCompany));
@@ -99,7 +102,9 @@ public class CompanyController {
 
            
             User user = userService.getUserByUsername(username);
-
+            if (companyRequest.getLatitude() == 0.0 || companyRequest.getLongitude() == 0.0) {
+                throw new RuntimeException("Latitude and Longitude are required for company updates.");
+            }
             
             Company existingCompany = companyService.getCompanyById(id);
 
