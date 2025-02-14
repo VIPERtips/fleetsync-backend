@@ -78,4 +78,9 @@ public class TrackingDataService {
             }
         }
     }
+
+
+	public List<TrackingData> getTrackingDataByVehicleIds(List<Integer> vehicleIds) {
+        return trackingDataRepository.findByVehicle_VehicleIdIn(vehicleIds);
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.fleetsync.service;
 
 import com.example.fleetsync.model.Company;
+import com.example.fleetsync.model.Status;
 import com.example.fleetsync.model.User;
 import com.example.fleetsync.model.Vehicle;
 import com.example.fleetsync.repository.VehicleRepository;
@@ -95,4 +96,21 @@ public class VehicleService {
 	public boolean existsByVin(String vin) {
 		return vehicleRepository.existsByVin(vin);
 	}
+	
+	public List<Vehicle> getTotalVehiclesByCompany(Company company) {
+	    return vehicleRepository.findByCompany(company); 
+	}
+
+	public List<Vehicle> getActiveVehiclesByCompany(Company company) {
+	    return vehicleRepository.findByCompanyAndStatus(company, Status.ACTIVE);  
+	}
+
+	public List<Vehicle> getInactiveVehiclesByCompany(Company company) {
+	    return vehicleRepository.findByCompanyAndStatus(company, Status.INACTIVE);  
+	}
+
+	public List<Vehicle> getMaintenanceVehiclesByCompany(Company company) {
+	    return vehicleRepository.findByCompanyAndStatus(company, Status.MAINTENANCE);  
+	}
+
 }

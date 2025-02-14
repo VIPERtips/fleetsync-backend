@@ -1,20 +1,28 @@
 package com.example.fleetsync.controller;
 
 import com.example.fleetsync.model.TrackingData;
+import com.example.fleetsync.model.User;
 import com.example.fleetsync.model.Vehicle;
 import com.example.fleetsync.repository.VehicleRepository;
+import com.example.fleetsync.service.JwtService;
 import com.example.fleetsync.service.TrackingDataService;
+import com.example.fleetsync.service.UserService;
 import com.example.fleetsync.service.VehicleService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/tracking")
 public class TrackingDataController {
@@ -24,6 +32,12 @@ public class TrackingDataController {
     
     @Autowired 
     private VehicleService vehicleService;
+    
+    @Autowired
+    private JwtService jwtService;
+    
+    @Autowired
+    private UserService userService;
     
     @Autowired
     private VehicleRepository vehicleRepository;
@@ -101,4 +115,100 @@ public class TrackingDataController {
     	System.err.println(trackingDataService.getTrackingHistory(vin));
         return trackingDataService.getTrackingHistory(vin);
     }
+    
+    @GetMapping("/analytics")
+    public ResponseEntity<Map<String, Double>> getAnalytics(HttpServletRequest request) {
+        try {
+            
+            String token = extractTokenFromRequest(request);
+            String username = jwtService.extractUsername(token);
+            User user = userService.getUserByUsername(username);
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", 0.0)); // User not found
+            }
+
+            
+            List<Vehicle> userVehicles = vehicleService.getVehiclesByCompany(user.getCompany());
+
+            if (userVehicles.isEmpty()) {
+                return ResponseEntity.ok(Map.of("totalDistance", 0.0, "averageSpeed", 0.0));
+            }
+
+            // Extract vehicle IDs
+            List<Integer> vehicleIds = userVehicles.stream()
+                    .map(Vehicle::getVehicleId)
+                    .toList();
+
+           
+            List<TrackingData> allTrackingData = trackingDataService.getTrackingDataByVehicleIds(vehicleIds);
+
+            if (allTrackingData.isEmpty()) {
+                return ResponseEntity.ok(Map.of("totalDistance", 0.0, "averageSpeed", 0.0));
+            }
+
+            // Group data by vehicle ID
+            Map<Integer, List<TrackingData>> groupedData = allTrackingData.stream()
+                    .collect(Collectors.groupingBy(td -> td.getVehicle().getVehicleId()));
+
+            double totalDistance = 0.0;
+
+            // Calculate total distance
+            for (List<TrackingData> trackingList : groupedData.values()) {
+                trackingList.sort(Comparator.comparing(TrackingData::getTimestamp));
+                for (int i = 1; i < trackingList.size(); i++) {
+                    TrackingData prev = trackingList.get(i - 1);
+                    TrackingData curr = trackingList.get(i);
+                    totalDistance += calculateDistance(
+                            prev.getLatitude(), prev.getLongitude(),
+                            curr.getLatitude(), curr.getLongitude()
+                    );
+                }
+            }
+
+            // Calculate average speed
+            double totalSpeed = allTrackingData.stream()
+                    .filter(td -> td.getSpeed() != null)
+                    .mapToDouble(TrackingData::getSpeed)
+                    .sum();
+            long speedCount = allTrackingData.stream()
+                    .filter(td -> td.getSpeed() != null)
+                    .count();
+            double averageSpeed = speedCount > 0 ? totalSpeed / speedCount : 0;
+
+            Map<String, Double> analytics = new HashMap<>();
+            analytics.put("totalDistance", totalDistance);
+            analytics.put("averageSpeed", averageSpeed);
+
+            return ResponseEntity.ok(analytics);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", 0.0));
+        }
+    }
+
+    
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        final double EARTH_RADIUS = 6371; 
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return EARTH_RADIUS * c;
+    }
+
+    
+    private String extractTokenFromRequest(HttpServletRequest request) {
+		String token = request.getHeader("Authorization");
+		if (token != null && token.startsWith("Bearer ")) {
+			return token.substring(7);
+		}
+		return null;
+	}
+
+
 }

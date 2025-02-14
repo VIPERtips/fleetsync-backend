@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.fleetsync.model.Company;
+import com.example.fleetsync.model.Status;
 import com.example.fleetsync.model.Vehicle;
 
 public interface VehicleRepository extends JpaRepository<Vehicle, Integer>{
@@ -15,5 +16,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Integer>{
 	List<Vehicle> findByCompany(Company company);
 
 	Optional<Vehicle> findByVin(String vin);
+
+	List<Vehicle> findByCompanyAndStatus(Company company, Status active);
 
 }

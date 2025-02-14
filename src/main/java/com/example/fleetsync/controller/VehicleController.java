@@ -21,110 +21,196 @@ import java.util.List;
 @RequestMapping("/api/vehicles")
 public class VehicleController {
 
-    @Autowired
-    private VehicleService vehicleService;
-    
-    @Autowired
-    private JwtService jwtService;
-    
-    @Autowired
-    private UserService userService;
+	@Autowired
+	private VehicleService vehicleService;
 
-    @PostMapping
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ApiResponse<Vehicle>> registerVehicle(@RequestBody Vehicle vehicle, HttpServletRequest request) {
-        try {
-            
-            Vehicle registeredVehicle = vehicleService.registerVehicle(vehicle, request);
-            return ResponseEntity.ok(new ApiResponse<>("Vehicle registered successfully", true, registeredVehicle));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>(e.getMessage(), false, null));
-        }
-    }
+	@Autowired
+	private JwtService jwtService;
 
-    @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<ApiResponse<List<Vehicle>>> getAllVehicles() {
-        List<Vehicle> vehicles = vehicleService.getAllVehicles();
-        if (vehicles.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body(new ApiResponse<>("No vehicles found", false, null));
-        }
-        return ResponseEntity.ok(new ApiResponse<>("Vehicles retrieved successfully", true, vehicles));
-    }
+	@Autowired
+	private UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Vehicle>> getVehicleById(@PathVariable int id) {
-        Vehicle vehicle = vehicleService.getVehicleById(id);
-        if (vehicle != null) {
-            return ResponseEntity.ok(new ApiResponse<>("Vehicle retrieved successfully", true, vehicle));
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ApiResponse<>("Vehicle not found with ID: " + id, false, null));
-    }
+	@PostMapping
+	@PreAuthorize("hasRole('USER')")
+	public ResponseEntity<ApiResponse<Vehicle>> registerVehicle(@RequestBody Vehicle vehicle,
+			HttpServletRequest request) {
+		try {
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<ApiResponse<Vehicle>> updateVehicle(@PathVariable int id, @RequestBody Vehicle vehicleRequest) {
-        Vehicle updatedVehicle = vehicleService.updateVehicle(id, vehicleRequest);
-        if (updatedVehicle != null) {
-            return ResponseEntity.ok(new ApiResponse<>("Vehicle updated successfully", true, updatedVehicle));
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ApiResponse<>("Vehicle not found with ID: " + id, false, null));
-    }
+			Vehicle registeredVehicle = vehicleService.registerVehicle(vehicle, request);
+			return ResponseEntity.ok(new ApiResponse<>("Vehicle registered successfully", true, registeredVehicle));
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(e.getMessage(), false, null));
+		}
+	}
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<ApiResponse<String>> deleteVehicle(@PathVariable int id) {
-        boolean isDeleted = vehicleService.deleteVehicle(id);
-        if (isDeleted) {
-            return ResponseEntity.ok(new ApiResponse<>("Vehicle deleted successfully", true, null));
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ApiResponse<>("Vehicle not found with ID: " + id, false, null));
-    }
-    
-    @GetMapping("/my-vehicles")
-    public ResponseEntity<ApiResponse<List<Vehicle>>> getUserVehicles(HttpServletRequest request) {
-        try {
-            
-            String token = extractTokenFromRequest(request);
+	@GetMapping
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<ApiResponse<List<Vehicle>>> getAllVehicles() {
+		List<Vehicle> vehicles = vehicleService.getAllVehicles();
+		if (vehicles.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NO_CONTENT)
+					.body(new ApiResponse<>("No vehicles found", false, null));
+		}
+		return ResponseEntity.ok(new ApiResponse<>("Vehicles retrieved successfully", true, vehicles));
+	}
 
-            
-            String username = jwtService.extractUsername(token);
+	@GetMapping("/{id}")
+	public ResponseEntity<ApiResponse<Vehicle>> getVehicleById(@PathVariable int id) {
+		Vehicle vehicle = vehicleService.getVehicleById(id);
+		if (vehicle != null) {
+			return ResponseEntity.ok(new ApiResponse<>("Vehicle retrieved successfully", true, vehicle));
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(new ApiResponse<>("Vehicle not found with ID: " + id, false, null));
+	}
 
-            
+	@PutMapping("/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+	public ResponseEntity<ApiResponse<Vehicle>> updateVehicle(@PathVariable int id,
+			@RequestBody Vehicle vehicleRequest) {
+		Vehicle updatedVehicle = vehicleService.updateVehicle(id, vehicleRequest);
+		if (updatedVehicle != null) {
+			return ResponseEntity.ok(new ApiResponse<>("Vehicle updated successfully", true, updatedVehicle));
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(new ApiResponse<>("Vehicle not found with ID: " + id, false, null));
+	}
+
+	@DeleteMapping("/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+	public ResponseEntity<ApiResponse<String>> deleteVehicle(@PathVariable int id) {
+		boolean isDeleted = vehicleService.deleteVehicle(id);
+		if (isDeleted) {
+			return ResponseEntity.ok(new ApiResponse<>("Vehicle deleted successfully", true, null));
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(new ApiResponse<>("Vehicle not found with ID: " + id, false, null));
+	}
+
+	@GetMapping("/my-vehicles")
+	public ResponseEntity<ApiResponse<List<Vehicle>>> getUserVehicles(HttpServletRequest request) {
+		try {
+
+			String token = extractTokenFromRequest(request);
+
+			String username = jwtService.extractUsername(token);
+
 			User user = userService.getUserByUsername(username);
 
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>("User not found", false, null));
-            }
+			if (user == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND)
+						.body(new ApiResponse<>("User not found", false, null));
+			}
 
-            
-            List<Vehicle> vehicles = vehicleService.getVehiclesByCompany(user.getCompany());
+			List<Vehicle> vehicles = vehicleService.getVehiclesByCompany(user.getCompany());
 
-            if (vehicles.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                        .body(new ApiResponse<>("No vehicles found for the user", false, null));
-            }
+			if (vehicles.isEmpty()) {
+				return ResponseEntity.status(HttpStatus.NO_CONTENT)
+						.body(new ApiResponse<>("No vehicles found for the user", false, null));
+			}
 
-            return ResponseEntity.ok(new ApiResponse<>("User vehicles retrieved successfully", true, vehicles));
+			return ResponseEntity.ok(new ApiResponse<>("User vehicles retrieved successfully", true, vehicles));
 
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(e.getMessage(), false, null));
-        }
-    }
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new ApiResponse<>(e.getMessage(), false, null));
+		}
+	}
 
-    
-    private String extractTokenFromRequest(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            return token.substring(7);
-        }
-        return null;
-    }
+	@GetMapping("/total")
+	
+	public ResponseEntity<ApiResponse<Integer>> getTotalVehicles(HttpServletRequest request) {
+	    try {
+	        String token = extractTokenFromRequest(request);
+	        String username = jwtService.extractUsername(token);
+	        User user = userService.getUserByUsername(username);
+
+	        if (user == null) {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                    .body(new ApiResponse<>("User not found", false, null));
+	        }
+
+	        List<Vehicle> vehicles = vehicleService.getTotalVehiclesByCompany(user.getCompany());
+	        int totalVehicles = vehicles.size();
+	        return ResponseEntity.ok(new ApiResponse<>("Total vehicles retrieved successfully", true, totalVehicles));
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new ApiResponse<>(e.getMessage(), false, null));
+	    }
+	}
+
+
+	@GetMapping("/active")
+	
+	public ResponseEntity<ApiResponse<Integer>> getActiveVehicles(HttpServletRequest request) {
+	    try {
+	        String token = extractTokenFromRequest(request);
+	        String username = jwtService.extractUsername(token);
+	        User user = userService.getUserByUsername(username);
+
+	        if (user == null) {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                    .body(new ApiResponse<>("User not found", false, null));
+	        }
+
+	        List<Vehicle> vehicles = vehicleService.getActiveVehiclesByCompany(user.getCompany());
+	        int activeCount = vehicles.size();
+	        return ResponseEntity.ok(new ApiResponse<>("Active vehicles count retrieved successfully", true, activeCount));
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new ApiResponse<>(e.getMessage(), false, null));
+	    }
+	}
+	@GetMapping("/inactive")
+	
+	public ResponseEntity<ApiResponse<Integer>> getInactiveVehicles(HttpServletRequest request) {
+	    try {
+	        String token = extractTokenFromRequest(request);
+	        String username = jwtService.extractUsername(token);
+	        User user = userService.getUserByUsername(username);
+
+	        if (user == null) {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                    .body(new ApiResponse<>("User not found", false, null));
+	        }
+
+	        List<Vehicle> vehicles = vehicleService.getInactiveVehiclesByCompany(user.getCompany());
+	        int inactiveCount = vehicles.size();
+	        return ResponseEntity.ok(new ApiResponse<>("Inactive vehicles count retrieved successfully", true, inactiveCount));
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new ApiResponse<>(e.getMessage(), false, null));
+	    }
+	}
+	@GetMapping("/maintenance")
+	
+	public ResponseEntity<ApiResponse<Integer>> getMaintenanceVehicles(HttpServletRequest request) {
+	    try {
+	        String token = extractTokenFromRequest(request);
+	        String username = jwtService.extractUsername(token);
+	        User user = userService.getUserByUsername(username);
+
+	        if (user == null) {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                    .body(new ApiResponse<>("User not found", false, null));
+	        }
+
+	        List<Vehicle> vehicles = vehicleService.getMaintenanceVehiclesByCompany(user.getCompany());
+	        int maintenanceCount = vehicles.size();
+	        return ResponseEntity.ok(new ApiResponse<>("Maintenance vehicles count retrieved successfully", true, maintenanceCount));
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new ApiResponse<>(e.getMessage(), false, null));
+	    }
+	}
+
+
+
+	private String extractTokenFromRequest(HttpServletRequest request) {
+		String token = request.getHeader("Authorization");
+		if (token != null && token.startsWith("Bearer ")) {
+			return token.substring(7);
+		}
+		return null;
+	}
 }
