@@ -76,7 +76,7 @@ public class AuthenticationController {
 
         userService.generateResetToken(user);
 
-        String resetLink = "https://localhost:8080/reset-password?token=" + user.getResetToken();
+        String resetLink = "https://fleet-sync.vercel.app/reset-password?token=" + user.getResetToken();
 
         // Notify admin
         emailSender.sendEmail("mytipstadiwa@gmail.com", "Password Reset Requested",
