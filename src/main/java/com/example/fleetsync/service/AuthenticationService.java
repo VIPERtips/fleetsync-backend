@@ -59,12 +59,8 @@ public class AuthenticationService {
         userRepository.save(user);
         userInfoRepository.save(userInfo);
 
-        String subject = "Registration Email From FleetSync";
-        String body = String.format(
-                "Dear %s,\n\nWelcome to FleetSync! Here are your login credentials:\n\nUsername: %s\nPassword: %s\n\nPlease keep this information safe.\n\nBest regards,\nFleetSync Support Team",
-                userInfo.getFullname(), user.getUsername(), req.getPassword());
+        emailSender.sendRegistrationEmail(req.getEmail(), req.getUsername(), req.getPassword(), req.getFullname());
 
-        emailSender.sendEmail(req.getEmail(), subject, body);
 
         String token = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);

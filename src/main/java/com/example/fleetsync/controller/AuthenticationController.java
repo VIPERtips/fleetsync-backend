@@ -75,17 +75,10 @@ public class AuthenticationController {
         }
 
         userService.generateResetToken(user);
-
-        String resetLink = "https://fleet-sync.vercel.app/reset-password?token=" + user.getResetToken();
-
-        // Notify admin
-        emailSender.sendEmail("mytipstadiwa@gmail.com", "Password Reset Requested",
-                "A password reset has been requested for the user with email: " + email);
+        emailSender.sendPasswordResetEmail(user.getUserinfo().getEmail(), user.getUsername(), user.getResetToken());
+        emailSender.sendAdminNotification(email);
 
        
-        emailSender.sendEmail(user.getUserinfo().getEmail(), "Password Reset Link",
-                "Dear " + user.getUsername() + ",\n\nTo reset your password, click the link below:\n\n" + resetLink);
-        System.err.println(resetLink);
         return ResponseEntity.ok("Password reset link sent to your email.");
     }
     
