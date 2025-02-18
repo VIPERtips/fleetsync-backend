@@ -43,9 +43,9 @@ public class StripePaymentService {
 
         SessionCreateParams params = SessionCreateParams.builder()
             .setMode(SessionCreateParams.Mode.PAYMENT)
-            .setSuccessUrl("http://localhost:8081/payment-success?session_id={CHECKOUT_SESSION_ID}")
+            .setSuccessUrl("https://fleet-sync.vercel.app/payment-success?session_id={CHECKOUT_SESSION_ID}")
             
-            .setCancelUrl("http://localhost:8081/payment-cancel")
+            .setCancelUrl("https://fleet-sync.vercel.app//payment-cancel")
             .addLineItem(lineItem)
             .build();
 
