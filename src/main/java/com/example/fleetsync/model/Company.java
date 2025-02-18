@@ -28,6 +28,10 @@ public class Company {
 	@JsonIgnore
     @OneToMany(mappedBy = "company")
     private List<Vehicle> vehicles;
+	
+	@JsonIgnore
+	@OneToOne(mappedBy = "company", cascade = CascadeType.ALL)
+	private Subscription subscription;
 
 	public Company() {
 	}
