@@ -5,7 +5,7 @@ spring:
     url: jdbc:mysql://${DATABASE_HOST:localhost}:${DATABASE_PORT:3306}/${DATABASE_NAME:fleetsync_db}?allowPublicKeyRetrieval=true&useSSL=false
     username: ${DATABASE_USER:root}
     password: ${DATABASE_PASSWORD:youngtips}
-    driver-class-name: com.mysql.cj.jdbc.Driver  # <-- Fixed indentation
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
@@ -27,6 +27,7 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
+
 logging:
   level:
     org:
@@ -34,3 +35,6 @@ logging:
         security: DEBUG
         security.authentication: DEBUG
         security.web.authentication: DEBUG
+
+stripe:
+  secretkey: sk_test_51QsnSnH00KkcVBL1axQ26Jcf4vr5F5xfWbot6oxxZWdV6NAkmyGnMLC1XoI05UUMhFqs0FZeL2bSF1j0AfSyQT9a00MEs5FF3G
