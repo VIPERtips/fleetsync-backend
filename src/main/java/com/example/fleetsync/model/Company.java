@@ -33,6 +33,10 @@ public class Company {
 	@OneToOne(mappedBy = "company", cascade = CascadeType.ALL)
 	private Subscription subscription;
 
+	public Subscription getSubscription() {
+		return subscription;
+	}
+
 	public Company() {
 	}
 
@@ -63,11 +67,11 @@ public class Company {
 
 	public int getFleetSize() {
 		return fleetSize;
-	}
+	}/*
 
 	public void setFleetSize(int fleetSize) {
 		this.fleetSize = fleetSize;
-	}
+	}*/
 
 	public String getAddress() {
 		return address;
@@ -125,6 +129,25 @@ public class Company {
 		this.vehicles = vehicles;
 	}
 	
+	public void setFleetSize(int fleetSize) {
+        if (subscription != null && fleetSize > subscription.getNumberOfVehiclesAllowed()) {
+            throw new IllegalArgumentException(
+                "Fleet size cannot exceed subscription limit of " + 
+                subscription.getNumberOfVehiclesAllowed()
+            );
+        }
+        this.fleetSize = fleetSize;
+    }
+
+    
+	public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
+        if (subscription != null && fleetSize > subscription.getNumberOfVehiclesAllowed()) {
+            throw new IllegalArgumentException(
+                "Current fleet size exceeds new subscription limit. Reduce fleet size first."
+            );
+        }
+    }
 	
 
 }

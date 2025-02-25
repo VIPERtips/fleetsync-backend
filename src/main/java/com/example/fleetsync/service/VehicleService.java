@@ -38,7 +38,18 @@ public class VehicleService {
         if (vehicleRepository.existsByVin(vehicle.getVin())) {
             throw new RuntimeException("Vehicle with VIN " + vehicle.getVin() + " already exists.");
         }
+        
+        
         if (user != null && user.getCompany() != null) {
+        	 Company company = user.getCompany();
+        	if (company.getFleetSize() <= 0) {
+                throw new RuntimeException("Company must set fleet size before adding vehicles.");
+            }
+        	int currentVehicleCount = vehicleRepository.countByCompany(company);
+            if (currentVehicleCount >= company.getFleetSize()) {
+                throw new RuntimeException("Fleet size limit reached (" + company.getFleetSize() + ").");
+            }
+
             
             vehicle.setCompany(user.getCompany());
             return vehicleRepository.save(vehicle);

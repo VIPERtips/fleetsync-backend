@@ -39,6 +39,9 @@ public class CompanyService {
         if (companyRepository.existsByName(req.getName())) {
             throw new RuntimeException("Company name: " + req.getName() + " is already taken.");
         }
+        if (req.getFleetSize() <= 0) {
+            throw new RuntimeException("Fleet size must be greater than 0.");
+        }
 
         req.setUser(user);
         
@@ -61,6 +64,10 @@ public class CompanyService {
         
         if (!existingCompany.getName().equals(req.getName()) && companyRepository.existsByName(req.getName())) {
             throw new RuntimeException("Company name: " + req.getName() + " is already taken. Please use a different name.");
+        }
+        
+        if (req.getFleetSize() <= 0) {
+            throw new RuntimeException("Fleet size must be greater than 0.");
         }
 
        

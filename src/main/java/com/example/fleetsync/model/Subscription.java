@@ -67,7 +67,17 @@ public class Subscription {
         return numberOfVehiclesAllowed;
     }
 
+    /*public void setNumberOfVehiclesAllowed(int numberOfVehiclesAllowed) {
+        this.numberOfVehiclesAllowed = numberOfVehiclesAllowed;
+    }*/
+    
     public void setNumberOfVehiclesAllowed(int numberOfVehiclesAllowed) {
+        if (numberOfVehiclesAllowed < company.getFleetSize()) {
+            throw new IllegalArgumentException(
+                "Subscription limit must be ≥ current fleet size (" + 
+                company.getFleetSize() + ")"
+            );
+        }
         this.numberOfVehiclesAllowed = numberOfVehiclesAllowed;
     }
 

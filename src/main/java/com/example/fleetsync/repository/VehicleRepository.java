@@ -19,4 +19,6 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Integer>{
 
 	List<Vehicle> findByCompanyAndStatus(Company company, Status active);
 
+	int countByCompany(Company company);
+
 }
