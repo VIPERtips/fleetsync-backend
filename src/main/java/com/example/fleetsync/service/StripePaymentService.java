@@ -45,8 +45,9 @@ public class StripePaymentService {
             .setMode(SessionCreateParams.Mode.PAYMENT)
             .setSuccessUrl("https://fleet-sync.vercel.app/payment-success?session_id={CHECKOUT_SESSION_ID}")
             
-            .setCancelUrl("https://fleet-sync.vercel.app//payment-cancel")
+            .setCancelUrl("https://fleet-sync.vercel.app/payment-cancel")
             .addLineItem(lineItem)
+            .putMetadata("numberOfVehicles", String.valueOf(req.getNumberOfVehicles()))
             .build();
 
         try {

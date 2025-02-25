@@ -62,11 +62,12 @@ public class PaymentController {
             User user = userService.getUserByUsername(username);
             Company company = companyService.getCompanyByUser(user);
             int companyId = company.getCompanyId(); 
-            int numberOfVehicles = company.getVehicles().size();
+            //int numberOfVehicles = company.getVehicles().size();
             Session session = Session.retrieve(req.getSessionId());
             System.out.println("Stripe Session: " + session);
             if ("paid".equals(session.getPaymentStatus())) {
-               
+            	String numberOfVehiclesStr = session.getMetadata().get("numberOfVehicles");
+            	 int numberOfVehicles = (numberOfVehiclesStr != null) ? Integer.parseInt(numberOfVehiclesStr) : 0;
                 subscriptionService.updateSubscriptionAfterPayment(companyId, numberOfVehicles);
                 return ResponseEntity.ok("Payment verified successfully.");
             } else {
